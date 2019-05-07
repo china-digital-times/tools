@@ -1,12 +1,12 @@
 // @ts-check
 
 const fs = require("fs")
-const inputPath = "../list"
-const outputPath = "../data"
-const indexPath = "../index"
+const inputPath = "../media-list"
+const outputPath = "../media-data"
+const indexPath = "../media-index"
 
-const id2link = {}
-const link2id = {}
+const id2file = {}
+const file2id = {}
 
 const files = fs.readdirSync(inputPath)
 
@@ -19,41 +19,51 @@ const handler = (file) => {
             id,
             date_gmt,
             modified_gmt,
-            link,
+            source_url: url,
             title: titleObj,
-            content: contentObj,
+            caption: captionObj,
             author,
-            categories,
-            tags
+            media_type,
+            mime_type,
+            post: post_id,
+            media_details,
         } = j
 
         const date = date_gmt + "Z"
         const modified = modified_gmt + "Z"
         const title = titleObj.rendered
-        const content = contentObj.rendered
+        const caption = captionObj.rendered
 
-        let linkDecoded
+        const size = {
+            width: +media_details.width,
+            height: +media_details.height,
+        }
+
+        let urlDecoded
         try {
-            linkDecoded = decodeURI(link)
+            urlDecoded = decodeURI(url)
         } catch (e) {
             return
         }
 
         const output = JSON.stringify({
             id,
-            link: linkDecoded,
+            url: urlDecoded,
             date,
             modified,
             title,
-            content,
+            caption,
             author,
-            categories,
-            tags,
+            post_id,
+            media_type,
+            mime_type,
+            size,
         })
 
-        id2link[id] = linkDecoded
-        link2id[linkDecoded] = id
+        const filePath = media_details.file
 
+        id2file[id] = filePath
+        file2id[filePath] = id
 
         fs.writeFileSync(`${outputPath}/${id}.json`, output)
 
@@ -65,5 +75,5 @@ files.forEach(x => {
     handler(x)
 })
 
-fs.writeFileSync(`${indexPath}/id2link.json`, JSON.stringify(id2link, null, 4))
-fs.writeFileSync(`${indexPath}/link2id.json`, JSON.stringify(link2id, null, 4))
+fs.writeFileSync(`${indexPath}/id2file.json`, JSON.stringify(id2file, null, 4))
+fs.writeFileSync(`${indexPath}/file2id.json`, JSON.stringify(file2id, null, 4))

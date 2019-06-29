@@ -1,0 +1,18 @@
+{
+  "name": "@china-digital-times/tools",
+  "private": true,
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/china-digital-times/tools.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/china-digital-times/tools/issues"
+  },
+  "homepage": "https://github.com/china-digital-times/tools#readme",
+  "dependencies": {
+    "fs-extra": "^8.1.0",
+    "node-fetch": "^2.6.0"
+  }
+}

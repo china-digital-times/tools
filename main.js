@@ -1,20 +1,25 @@
 // @ts-check
 
-const fs = require("fs")
-const inputPath = "../list"
-const outputPath = "../data"
+const fs = require("fs-extra")
+const fetch = require("node-fetch").default
+
 const indexPath = "../index"
+const outputPath = "../data"
 
-const id2link = {}
-const link2id = {}
+const id2link = fs.readJsonSync(`${indexPath}/id2link.json`)
+const link2id = fs.readJsonSync(`${indexPath}/link2id.json`)
 
-const files = fs.readdirSync(inputPath)
+const n = Object.keys(id2link).length + 1713
 
-const handler = (file) => {
-    const path = inputPath + "/" + file
-    const data = fs.readFileSync(path, "utf-8")
-    const json = JSON.parse(data)
-    json.forEach((j) => {
+const url = `https://chinadigitaltimes.net/chinese/wp-json/wp/v2/posts/?order=asc&per_page=100&orderby=id&offset=${n}`
+
+fetch(url).then(async (r) => {
+
+    /** @type {object[]} */
+    const json = await r.json()
+
+    json.map((j) => {
+
         const {
             id,
             date_gmt,
@@ -54,18 +59,13 @@ const handler = (file) => {
         id2link[id] = linkDecoded
         link2id[linkDecoded] = id
 
-
         fs.writeFileSync(`${outputPath}/${id}.json`, output)
 
     })
-}
 
-files.forEach(x => {
-    if (x !== ".git") {
-        console.log(x)
-        handler(x)
-    }
+}).then(() => {
+    return Promise.all([
+        fs.writeJSON(`${indexPath}/id2link.json`, id2link, { spaces: 4 }),
+        fs.writeJSON(`${indexPath}/link2id.json`, link2id, { spaces: 4 }),
+    ])
 })
-
-fs.writeFileSync(`${indexPath}/id2link.json`, JSON.stringify(id2link, null, 4))
-fs.writeFileSync(`${indexPath}/link2id.json`, JSON.stringify(link2id, null, 4))

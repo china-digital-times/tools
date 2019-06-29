@@ -11,10 +11,10 @@ branches:
     - master
 
 cache:
-  cache: npm
   directories:
     - ../index/
     - ../data/
+    - node_modules
 
 before_install:
   - eval "$(ssh-agent -s)"
@@ -26,13 +26,21 @@ install:
   - npm install
 
 before_script:
-  - git clone git@github.com:china-digital-times/index.git ../index
-  - git clone git@github.com:china-digital-times/data.git ../data
+  - git_pull () {
+      if [ -d ../$1/.git ]; then
+        cd ../$1;
+        git pull;
+        cd -;
+      else
+        git clone git@github.com:china-digital-times/index.git ../$1;
+      fi }
+  - git_pull index
+  - git_pull data
 
 script:
   - node main.js
 
-after_script:
+after_success:
   - git_commit () { git add .; git commit -m "$(date --iso-8601)"; git push; }
   - cd ../index/ && git_commit && cd -
   - cd ../data/ && git_commit && cd -

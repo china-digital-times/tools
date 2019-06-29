@@ -21,6 +21,8 @@ before_install:
   - openssl aes-256-cbc -k "$ssh_key_decrypt_password" -in id_rsa.enc -out $HOME/.ssh/id_rsa -d
   - chmod 600 $HOME/.ssh/id_rsa
   - ssh-add $HOME/.ssh/id_rsa
+  - git config --global user.email cdt-bot@protonmail.com
+  - git config --global user.name cdt-bot
 
 install:
   - npm install

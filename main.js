@@ -36,7 +36,7 @@ const handler = (file) => {
         try {
             linkDecoded = decodeURI(link)
         } catch (e) {
-            return
+            linkDecoded = link
         }
 
         const output = JSON.stringify({
@@ -61,8 +61,10 @@ const handler = (file) => {
 }
 
 files.forEach(x => {
-    console.log(x)
-    handler(x)
+    if (x !== ".git") {
+        console.log(x)
+        handler(x)
+    }
 })
 
 fs.writeFileSync(`${indexPath}/id2link.json`, JSON.stringify(id2link, null, 4))

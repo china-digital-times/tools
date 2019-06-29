@@ -32,13 +32,20 @@ before_script:
         git pull;
         cd -;
       else
-        git clone git@github.com:china-digital-times/index.git ../$1;
+        git clone git@github.com:china-digital-times/$1.git ../$1;
       fi }
   - git_pull index
   - git_pull data
 
 script:
   - node main.js
-  - git_commit () { git pull; git add .; git commit -m "$(date --iso-8601)"; git push; }
-  - cd ../index/ && git_commit && cd -
-  - cd ../data/ && git_commit && cd -
+  - git_commit () {
+      cd ../$1/;
+      pwd;
+      git pull;
+      git add .;
+      git commit -m "$(date --iso-8601)";
+      git push;
+      cd -; }
+  - git_commit index
+  - git_commit data

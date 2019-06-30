@@ -1,4 +1,5 @@
 // @ts-check
+/// <reference lib="es2019"/>
 
 const fs = require("fs-extra")
 const fetch = require("node-fetch").default
@@ -8,6 +9,12 @@ const outputPath = "../data"
 
 const id2link = fs.readJsonSync(`${indexPath}/id2link.json`)
 const link2id = fs.readJsonSync(`${indexPath}/link2id.json`)
+
+/** @type {[string, string][]} */
+let latest100id2title = []
+try {
+    latest100id2title = Object.entries(fs.readJsonSync(`${indexPath}/latest100id2title.json`) || {})
+} catch { }
 
 const n = Object.keys(id2link).length + 1713
 
@@ -58,14 +65,17 @@ fetch(url).then(async (r) => {
 
         id2link[id] = linkDecoded
         link2id[linkDecoded] = id
+        latest100id2title.push([id, title])
 
         fs.writeFileSync(`${outputPath}/${id}.json`, output)
 
     })
 
 }).then(() => {
+    const latest100id2titleObj = Object.fromEntries(latest100id2title.slice(-100))
     return Promise.all([
         fs.writeJSON(`${indexPath}/id2link.json`, id2link, { spaces: 4 }),
         fs.writeJSON(`${indexPath}/link2id.json`, link2id, { spaces: 4 }),
+        fs.writeJSON(`${indexPath}/latest100id2title.json`, latest100id2titleObj, { spaces: 4 }),
     ])
 })

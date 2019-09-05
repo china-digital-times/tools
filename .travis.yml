@@ -14,7 +14,6 @@ branches:
 cache:
   directories:
     - ../index/
-    - ../data/
     - node_modules
 
 before_install:
@@ -38,7 +37,7 @@ before_script:
         git clone git@github.com:china-digital-times/$1.git ../$1;
       fi }
   - git_pull index
-  - git_pull data
+  - git_pull files
 
 script:
   - node main.js
@@ -51,4 +50,4 @@ script:
       git push;
       cd -; }
   - git_commit index
-  - git_commit data
+  - git_commit files

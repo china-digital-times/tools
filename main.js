@@ -3,9 +3,12 @@
 
 const fs = require("fs-extra")
 const fetch = require("node-fetch").default
+const { dirname } = require("path")
+const { exec } = require("child_process")
 
 const indexPath = "../index"
 const outputPath = "../data"
+const imgPath = "../files"
 
 const imgReg = /src="(?:.+?)chinadigitaltimes\.net\/chinese\/files\/(.+?)(?: |")/
 const imgRegG = new RegExp(imgReg, "g")
@@ -34,6 +37,21 @@ const formatImgPaths = (l) => {
             return decodeURI(img)
         })
     )].sort()
+}
+
+const downloadImg = (file) => {
+    fs.ensureDirSync(dirname(file))
+    exec(`wget -nv -x -O ${imgPath}/${file} https://chinadigitaltimes.net/chinese/files/${file}`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`)
+        }
+
+        if (stderr) {
+            console.error(stderr)
+        } else {
+            console.log(stdout)
+        }
+    })
 }
 
 fetch(url).then(async (r) => {
@@ -90,6 +108,7 @@ fetch(url).then(async (r) => {
             ml.forEach((x) => {
                 const img = x.match(imgReg)[1]
                 imgs.push(img)
+                downloadImg(img)
             })
         }
 

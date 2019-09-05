@@ -29,6 +29,12 @@ install:
   - npm install
 
 before_script:
+  - timing () {
+      while true; do
+        date -u -Is;
+        sleep 30;
+      done }
+  - timing &
   - git_pull () {
       if [ -d ../$1/.git ]; then
         cd ../$1;
@@ -39,6 +45,7 @@ before_script:
       fi }
   - git_pull index
   - git_pull data
+  - git_pull files
 
 script:
   - node main.js
@@ -52,3 +59,4 @@ script:
       cd -; }
   - git_commit index
   - git_commit data
+  - git_commit files

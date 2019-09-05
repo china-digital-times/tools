@@ -9,6 +9,7 @@ git:
 branches:
   only:
     - master
+    - imgs
 
 cache:
   directories:

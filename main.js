@@ -7,8 +7,13 @@ const fetch = require("node-fetch").default
 const indexPath = "../index"
 const outputPath = "../data"
 
+const imgReg = /src="(?:.+?)chinadigitaltimes\.net\/chinese\/files\/(.+?)(?: |")/
+const imgRegG = new RegExp(imgReg, "g")
+
 const id2link = fs.readJsonSync(`${indexPath}/id2link.json`)
 const link2id = fs.readJsonSync(`${indexPath}/link2id.json`)
+
+const imgs = fs.readFileSync(`${indexPath}/imgs.txt`, "utf-8").split(/\n/g)
 
 /** @type {[string, string][]} */
 let latest100id2title = []
@@ -19,6 +24,17 @@ try {
 const n = Object.keys(id2link).length + 1713
 
 const url = `https://chinadigitaltimes.net/chinese/wp-json/wp/v2/posts/?order=asc&per_page=100&orderby=id&offset=${n}`
+
+/**
+ * @param {string[]} l 
+ */
+const formatImgPaths = (l) => {
+    return [...new Set(
+        l.map((img) => {
+            return decodeURI(img)
+        })
+    )].sort()
+}
 
 fetch(url).then(async (r) => {
 
@@ -69,6 +85,14 @@ fetch(url).then(async (r) => {
 
         fs.writeFileSync(`${outputPath}/${id}.json`, output)
 
+        const ml = content.match(imgRegG)
+        if (ml) {
+            ml.forEach((x) => {
+                const img = x.match(imgReg)[1]
+                imgs.push(img)
+            })
+        }
+
     })
 
 }).then(() => {
@@ -77,5 +101,6 @@ fetch(url).then(async (r) => {
         fs.writeJSON(`${indexPath}/id2link.json`, id2link, { spaces: 4 }),
         fs.writeJSON(`${indexPath}/link2id.json`, link2id, { spaces: 4 }),
         fs.writeJSON(`${indexPath}/latest100id2title.json`, latest100id2titleObj, { spaces: 4 }),
+        fs.writeFile(`${indexPath}/imgs.txt`, formatImgPaths(imgs).join("\n"))
     ])
 })

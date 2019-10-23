@@ -11,12 +11,6 @@ branches:
     - master
     - imgs
 
-cache:
-  directories:
-    - ../index/
-    - ../data/
-    - node_modules
-
 before_install:
   - eval "$(ssh-agent -s)"
   - openssl aes-256-cbc -k "$ssh_key_decrypt_password" -in id_rsa.enc -out $HOME/.ssh/id_rsa -d

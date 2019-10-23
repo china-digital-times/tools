@@ -22,7 +22,7 @@ const imgs = fs.readFileSync(`${indexPath}/imgs.txt`, "utf-8").split(/\n/g)
 let latest100id2title = []
 try {
     latest100id2title = Object.entries(fs.readJsonSync(`${indexPath}/latest100id2title.json`) || {})
-} catch { }
+} catch (_) { }
 
 const n = Object.keys(id2link).length + 1713
 
@@ -40,8 +40,9 @@ const formatImgPaths = (l) => {
 }
 
 const downloadImg = (file) => {
-    fs.ensureDirSync(dirname(file))
-    exec(`wget -nv -x -O ${imgPath}/${file} https://chinadigitaltimes.net/chinese/files/${file}`, (error, stdout, stderr) => {
+    const imgOutPath = `${imgPath}/${file}`
+    fs.ensureDirSync(dirname(imgOutPath))
+    exec(`wget -nv -x -O ${imgOutPath} https://chinadigitaltimes.net/chinese/files/${file}`, (error, stdout, stderr) => {
         if (error) {
             console.error(`exec error: ${error}`)
         }

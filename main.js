@@ -117,7 +117,7 @@ fetch(url).then(async (r) => {
 
         id2link[id] = linkDecoded
         link2id[linkDecoded] = id
-        latest100id2title.set(id, title)
+        latest100id2title.set(`${id}`, title)
 
         fs.writeFileSync(`${outputPath}/${id}.json`, output)
 

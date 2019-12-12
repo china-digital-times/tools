@@ -59,13 +59,17 @@ const getAllId2Title = async () => {
     const ids = Object.keys(id2link)
     const entries = await Promise.all(
         ids.map(async (id) => {
-            const json = await fs.readJSON(`${outputPath}/${id}.json`)
-            /** @type {[string, string]} */
-            const entry = [id, json.title]
-            return entry
+            try {
+                const json = await fs.readJSON(`${outputPath}/${id}.json`)
+                /** @type {[string, string]} */
+                const entry = [id, json.title]
+                return entry
+            } catch (e) {
+                console.error(e)
+            }
         })
     )
-    return Object.fromEntries(entries)
+    return Object.fromEntries(entries.filter(Boolean))
 }
 
 fetch(url).then(async (r) => {

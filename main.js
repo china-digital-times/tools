@@ -18,12 +18,6 @@ const link2id = fs.readJsonSync(`${indexPath}/link2id.json`)
 
 const imgs = fs.readFileSync(`${indexPath}/imgs.txt`, "utf-8").split(/\n/g)
 
-/** @type {Map<string, string>} */
-let latest100id2title = new Map()
-try {
-    latest100id2title = new Map(Object.entries(fs.readJsonSync(`${indexPath}/latest100id2title.json`) || {}))
-} catch (_) { }
-
 const n = Object.keys(id2link).length + 1713
 
 const url = `https://chinadigitaltimes.net/chinese/wp-json/wp/v2/posts/?order=asc&per_page=100&orderby=id&offset=${n}`
@@ -117,7 +111,6 @@ fetch(url).then(async (r) => {
 
         id2link[id] = linkDecoded
         link2id[linkDecoded] = id
-        latest100id2title.set(`${id}`, title)
 
         fs.writeFileSync(`${outputPath}/${id}.json`, output)
 
@@ -133,14 +126,16 @@ fetch(url).then(async (r) => {
     })
 
 }).then(() => {
-    const latest100id2titleObj = Object.fromEntries([...latest100id2title.entries()].slice(-100))
     return Promise.all([
         fs.writeJSON(`${indexPath}/id2link.json`, id2link, { spaces: 4 }),
         fs.writeJSON(`${indexPath}/link2id.json`, link2id, { spaces: 4 }),
-        fs.writeJSON(`${indexPath}/latest100id2title.json`, latest100id2titleObj, { spaces: 4 }),
         fs.writeFile(`${indexPath}/imgs.txt`, formatImgPaths(imgs).join("\n"))
     ])
 }).then(async () => {
     const id2title = await getAllId2Title()
-    return fs.writeJSON(`${indexPath}/id2title.json`, id2title, { spaces: 4 })
+    const latest100id2titleObj = Object.fromEntries(Object.entries(id2title).slice(-100))
+    return Promise.all([
+        fs.writeJSON(`${indexPath}/id2title.json`, id2title, { spaces: 4 }),
+        fs.writeJSON(`${indexPath}/latest100id2title.json`, latest100id2titleObj, { spaces: 4 })
+    ])
 })

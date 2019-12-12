@@ -55,6 +55,19 @@ const downloadImg = (file) => {
     })
 }
 
+const getAllId2Title = async () => {
+    const ids = Object.keys(id2link)
+    const entries = await Promise.all(
+        ids.map(async (id) => {
+            const json = await fs.readJSON(`${outputPath}/${id}.json`)
+            /** @type {[string, string]} */
+            const entry = [id, json.title]
+            return entry
+        })
+    )
+    return Object.fromEntries(entries)
+}
+
 fetch(url).then(async (r) => {
 
     /** @type {object[]} */
@@ -123,4 +136,7 @@ fetch(url).then(async (r) => {
         fs.writeJSON(`${indexPath}/latest100id2title.json`, latest100id2titleObj, { spaces: 4 }),
         fs.writeFile(`${indexPath}/imgs.txt`, formatImgPaths(imgs).join("\n"))
     ])
+}).then(async () => {
+    const id2title = await getAllId2Title()
+    return fs.writeJSON(`${indexPath}/id2title.json`, id2title, { spaces: 4 })
 })

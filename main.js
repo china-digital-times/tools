@@ -143,12 +143,12 @@ fetch(url).then(async (r) => {
 }).then(async () => {
     const urls = Object.keys(id2link).map(id => `${siteURL}/?/id/${id}`)
     // maximum sitemap size is 50,000 URLs
-    const chuckSize = 40000
+    const chuckSize = 20000
     // split this array
     const sitemaps = new Array(Math.ceil(urls.length / chuckSize))
         .fill(() => undefined)
         .map((_, i) => urls.slice(i * chuckSize, i * chuckSize + chuckSize))
-        .map((l) => l.join("\n"))
+        .map((l) => `${siteURL}\n${siteURL}/?/\n` + l.join("\n") + "\n")
     await Promise.all(sitemaps.map((s, i) => {
         fs.writeFile(`${indexPath}/sitemap.${i}.txt`, s)
     }))
@@ -160,6 +160,6 @@ fetch(url).then(async (r) => {
         sitemaps.map((_, i) => {
             return `<sitemap><loc>${siteURL}/index/sitemap.${i}.txt</loc></sitemap>`
         }).join("\n") +
-        '\n</sitemapindex>'
+        '\n</sitemapindex>\n'
     fs.writeFile(`${indexPath}/sitemapindex.xml`, sitemapindex)
 })

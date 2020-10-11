@@ -22,6 +22,8 @@ const n = Object.keys(id2link).length + 1713
 
 const url = `https://chinadigitaltimes.net/chinese/wp-json/wp/v2/posts/?order=asc&per_page=100&orderby=id&offset=${n}`
 
+const siteURL = "https://china-digital-times.github.io"
+
 /**
  * @param {string[]} l 
  */
@@ -138,4 +140,10 @@ fetch(url).then(async (r) => {
         fs.writeJSON(`${indexPath}/id2title.json`, id2title, { spaces: 4 }),
         fs.writeJSON(`${indexPath}/latest100id2title.json`, latest100id2titleObj, { spaces: 4 })
     ])
+}).then(async () => {
+    const sitemap =
+        `${siteURL}\n`
+        + `${siteURL}/?/\n`
+        + Object.keys(id2link).map(id => `${siteURL}/?/id/${id}`).join("\n")
+    return fs.writeFile(`${indexPath}/sitemap.txt`, sitemap)
 })

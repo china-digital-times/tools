@@ -143,7 +143,7 @@ fetch(url).then(async (r) => {
 }).then(async () => {
     const urls = Object.keys(id2link).map(id => `${siteURL}/?/id/${id}`)
     // maximum sitemap size is 50,000 URLs
-    const chuckSize = 50000
+    const chuckSize = 40000
     // split this array
     const sitemaps = new Array(Math.ceil(urls.length / chuckSize))
         .fill(() => undefined)

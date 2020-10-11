@@ -149,7 +149,17 @@ fetch(url).then(async (r) => {
         .fill(() => undefined)
         .map((_, i) => urls.slice(i * chuckSize, i * chuckSize + chuckSize))
         .map((l) => l.join("\n"))
-    return Promise.all(sitemaps.map((s, i) => {
+    await Promise.all(sitemaps.map((s, i) => {
         fs.writeFile(`${indexPath}/sitemap.${i}.txt`, s)
     }))
+
+    // sitemap index
+    const sitemapindex =
+        '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+        sitemaps.map((_, i) => {
+            return `<sitemap><loc>${siteURL}/index/sitemap.${i}.txt</loc></sitemap>`
+        }).join("\n") +
+        '\n</sitemapindex>'
+    fs.writeFile(`${indexPath}/sitemapindex.xml`, sitemapindex)
 })

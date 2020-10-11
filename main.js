@@ -141,9 +141,15 @@ fetch(url).then(async (r) => {
         fs.writeJSON(`${indexPath}/latest100id2title.json`, latest100id2titleObj, { spaces: 4 })
     ])
 }).then(async () => {
-    const sitemap =
-        `${siteURL}\n`
-        + `${siteURL}/?/\n`
-        + Object.keys(id2link).map(id => `${siteURL}/?/id/${id}`).join("\n")
-    return fs.writeFile(`${indexPath}/sitemap.txt`, sitemap)
+    const urls = Object.keys(id2link).map(id => `${siteURL}/?/id/${id}`)
+    // maximum sitemap size is 50,000 URLs
+    const chuckSize = 50000
+    // split this array
+    const sitemaps = new Array(Math.ceil(urls.length / chuckSize))
+        .fill(() => undefined)
+        .map((_, i) => urls.slice(i * chuckSize, i * chuckSize + chuckSize))
+        .map((l) => l.join("\n"))
+    return Promise.all(sitemaps.map((s, i) => {
+        fs.writeFile(`${indexPath}/sitemap.${i}.txt`, s)
+    }))
 })

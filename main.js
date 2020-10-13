@@ -141,16 +141,21 @@ fetch(url).then(async (r) => {
         fs.writeJSON(`${indexPath}/latest100id2title.json`, latest100id2titleObj, { spaces: 4 })
     ])
 }).then(async () => {
-    const urls = Object.keys(id2link).map(id => `${siteURL}/?/id/${id}`)
+    const urls = Object.keys(id2link).map(id => `<url><loc>${siteURL}/?/id/${id}</loc></url>`)
     // maximum sitemap size is 50,000 URLs
-    const chuckSize = 20000
+    const chuckSize = 50000
     // split this array
     const sitemaps = new Array(Math.ceil(urls.length / chuckSize))
         .fill(() => undefined)
         .map((_, i) => urls.slice(i * chuckSize, i * chuckSize + chuckSize))
-        .map((l) => `${siteURL}\n${siteURL}/?/\n` + l.join("\n") + "\n")
+        .map((l) =>
+            '<?xml version="1.0" encoding="UTF-8"?>\n' +
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+            l.join("\n") +
+            '\n</urlset>\n'
+        )
     await Promise.all(sitemaps.map((s, i) => {
-        fs.writeFile(`${indexPath}/sitemap.${i}.txt`, s)
+        fs.writeFile(`${indexPath}/sitemap.${i}.xml`, s)
     }))
 
     // sitemap index
@@ -158,7 +163,7 @@ fetch(url).then(async (r) => {
         '<?xml version="1.0" encoding="UTF-8"?>\n' +
         '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
         sitemaps.map((_, i) => {
-            return `<sitemap><loc>${siteURL}/index/sitemap.${i}.txt</loc></sitemap>`
+            return `<sitemap><loc>${siteURL}/index/sitemap.${i}.xml</loc></sitemap>`
         }).join("\n") +
         '\n</sitemapindex>\n'
     fs.writeFile(`${indexPath}/sitemapindex.xml`, sitemapindex)

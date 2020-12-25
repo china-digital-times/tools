@@ -1,0 +1,77 @@
+name: Sync
+
+on:
+  workflow_dispatch:
+    inputs: {}
+  schedule:
+    - cron:  0 23 * * *
+
+env:
+  GIT_EMAIL: cdt-bot@protonmail.com
+  GIT_NAME: cdt-bot
+
+jobs:
+  sync:
+
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - uses: webfactory/ssh-agent@v0.4.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+      - name: Git Config
+        run: |
+          git config --global user.email $GIT_EMAIL
+          git config --global user.name $GIT_NAME
+
+      - name: Install Dependencies
+        run: npm install
+      - name: Pull
+        run: |
+          git_pull () {
+            if [ -d ../$1/.git ]; then
+              cd ../$1;
+              git pull;
+              cd -;
+            else
+              git clone git@github.com:china-digital-times/$1.git ../$1;
+            fi }
+          git_pull index
+          git_pull data
+          git_pull files
+
+      - name: Sync
+        run: node main.js
+      - name: Push to Github
+        run: |
+          git_commit () {
+            cd ../$1/;
+            pwd;
+            git pull;
+            git add .;
+            git commit -m "$(date --iso-8601)";
+            git push;
+            cd -; }
+          git_commit index
+          git_commit data
+          git_commit files
+      
+  update-meta:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Git Config
+        run: |
+          git config --global user.email $GIT_EMAIL
+          git config --global user.name $GIT_NAME
+      - name: Update Metadata
+        run: |
+          git pull
+          date -u > updated
+          git add updated
+          git commit -m "$(date -uI)"
+          git push

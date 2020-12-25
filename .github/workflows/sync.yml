@@ -38,7 +38,7 @@ jobs:
               git pull;
               cd -;
             else
-              git clone git@github.com:china-digital-times/$1.git ../$1;
+              git clone --verbose git@github.com:china-digital-times/$1.git ../$1;
             fi }
           git_pull index
           git_pull data
@@ -59,7 +59,7 @@ jobs:
           git_commit index
           git_commit data
           git_commit files
-      
+
   update-meta:
     runs-on: ubuntu-18.04
     steps:

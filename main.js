@@ -6,9 +6,9 @@ const fetch = require("node-fetch").default
 const { dirname } = require("path")
 const { exec } = require("child_process")
 
-const indexPath = "../index"
-const outputPath = "../data"
-const imgPath = "../files"
+const indexPath = "./index"
+const outputPath = "./data"
+const imgPath = "./files"
 
 const imgReg = /src="(?:.+?)chinadigitaltimes\.net\/chinese\/files\/(.+?)(?: |")/
 const imgRegG = new RegExp(imgReg, "g")

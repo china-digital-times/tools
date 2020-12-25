@@ -30,26 +30,30 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+
       - name: Pull
-        run: |
-          git_pull () {
-            if [ -d ../$1/.git ]; then
-              cd ../$1;
-              git pull;
-              cd -;
-            else
-              git clone --verbose git@github.com:china-digital-times/$1.git ../$1;
-            fi }
-          git_pull index
-          git_pull data
-          git_pull files
+        uses: actions/checkout@v2
+        with:
+          repository: china-digital-times/index
+          path: ./index
+          ssh-key: ${{ secrets.SSH_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: china-digital-times/data
+          path: ./data
+          ssh-key: ${{ secrets.SSH_KEY }}
+      - uses: actions/checkout@v2
+        with:
+          repository: china-digital-times/files
+          path: ./files
+          ssh-key: ${{ secrets.SSH_KEY }}
 
       - name: Sync
         run: node main.js
       - name: Push to Github
         run: |
           git_commit () {
-            cd ../$1/;
+            cd ./$1/;
             pwd;
             git pull;
             git add .;

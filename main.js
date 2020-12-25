@@ -3,12 +3,12 @@
 
 const fs = require("fs-extra")
 const fetch = require("node-fetch").default
-const { dirname } = require("path")
-const { exec } = require("child_process")
+const { Octokit } = require("@octokit/rest")
 
 const indexPath = "./index"
 const outputPath = "./data"
-const imgPath = "./files"
+
+const github = new Octokit({ auth: process.env.TOKEN })
 
 const imgReg = /src="(?:.+?)chinadigitaltimes\.net\/chinese\/files\/(.+?)(?: |")/
 const imgRegG = new RegExp(imgReg, "g")
@@ -35,20 +35,24 @@ const formatImgPaths = (l) => {
     )].sort()
 }
 
-const downloadImg = (file) => {
-    const imgOutPath = `${imgPath}/${file}`
-    fs.ensureDirSync(dirname(imgOutPath))
-    exec(`wget -nv -x -O ${imgOutPath} https://chinadigitaltimes.net/chinese/files/${file}`, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`exec error: ${error}`)
-        }
-
-        if (stderr) {
-            console.error(stderr)
-        } else {
-            console.log(stdout)
-        }
-    })
+const downloadImg = async (file) => {
+    try {
+        const r = await fetch(`https://chinadigitaltimes.net/chinese/files/${file}`)
+        const data = await r.buffer()
+        await github.repos.createOrUpdateFileContents({
+            owner: "china-digital-times",
+            repo: "files",
+            path: file,
+            message: new Date().toISOString().split("T")[0],
+            content: data.toString("base64"),
+            committer: {
+                email: process.env.GIT_EMAIL,
+                name: process.env.GIT_NAME,
+            },
+        })
+    } catch (err) {
+        console.error(err)
+    }
 }
 
 const getAllId2Title = async () => {

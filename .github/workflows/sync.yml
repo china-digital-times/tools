@@ -42,14 +42,11 @@ jobs:
           repository: china-digital-times/data
           path: ./data
           ssh-key: ${{ secrets.SSH_KEY }}
-      - uses: actions/checkout@v2
-        with:
-          repository: china-digital-times/files
-          path: ./files
-          ssh-key: ${{ secrets.SSH_KEY }}
 
       - name: Sync
         run: node main.js
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
       - name: Push to Github
         run: |
           git_commit () {
@@ -62,7 +59,6 @@ jobs:
             cd -; }
           git_commit index
           git_commit data
-          git_commit files
 
   update-meta:
     runs-on: ubuntu-18.04

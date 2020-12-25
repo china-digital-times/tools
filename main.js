@@ -51,7 +51,7 @@ const downloadImg = async (file) => {
             },
         })
     } catch (err) {
-        console.error(err)
+        console.error(err.toString())
     }
 }
 
@@ -77,7 +77,7 @@ fetch(url).then(async (r) => {
     /** @type {object[]} */
     const json = await r.json()
 
-    json.map((j) => {
+    for (const j of json) {
 
         const {
             id,
@@ -94,6 +94,7 @@ fetch(url).then(async (r) => {
         const date = date_gmt + "Z"
         const modified = modified_gmt + "Z"
         const title = titleObj.rendered
+        /** @type {string} */
         const content = contentObj.rendered
 
         let linkDecoded
@@ -122,14 +123,14 @@ fetch(url).then(async (r) => {
 
         const ml = content.match(imgRegG)
         if (ml) {
-            ml.forEach((x) => {
+            for (const x of ml) {
                 const img = x.match(imgReg)[1]
                 imgs.push(img)
-                downloadImg(img)
-            })
+                await downloadImg(img)
+            }
         }
 
-    })
+    }
 
 }).then(() => {
     return Promise.all([

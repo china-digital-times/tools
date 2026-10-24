@@ -13,7 +13,7 @@ env:
 jobs:
   sync:
 
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -61,7 +61,7 @@ jobs:
           git_commit data
 
   update-meta:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Git Config
